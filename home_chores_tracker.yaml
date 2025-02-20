@@ -1,0 +1,87 @@
+name: Home Chores Tracker
+version: "1.0"
+description: "Track and manage personal and household chores in Home Assistant."
+slug: home_chores_tracker
+url: "https://github.com/your-repo/home-chores-tracker"
+arch: ["armhf", "armv7", "aarch64", "amd64", "i386"]
+startup: application
+boot: auto
+discovery: ["mqtt"]
+options:
+  chores:
+    - name: "Dishes"
+      due_time: "19:00"
+      points: 5
+      assigned_to: "Self"
+      status: "Pending"
+    - name: "Vacuum"
+      due_time: "18:00"
+      points: 10
+      assigned_to: "Self"
+      status: "Pending"
+schema:
+  chores:
+    - name: str
+      due_time: time
+      points: int
+      assigned_to: str
+      status: str
+init: false
+hassio_api: true
+hassio_role: homeassistant
+hassio_api_security: true
+map: ["config", "ssl", "addons", "backup", "share"]
+ports:
+  80/tcp: 80
+homeassistant:
+  min_version: "2023.5.0"
+
+lovelace:
+  title: Home Chores Dashboard
+  views:
+    - title: Chores
+      path: chores
+      icon: mdi:broom
+      cards:
+        - type: custom:button-card
+          entity: sensor.chores_tracker
+          name: "Today's Chores"
+          icon: mdi:clipboard-check
+          layout: icon_name
+        - type: entities
+          title: Chores List
+          entities:
+            - entity: sensor.dishes
+              name: "Dishes"
+            - entity: sensor.vacuum
+              name: "Vacuum"
+        - type: gauge
+          entity: sensor.completed_chores
+          min: 0
+          max: 100
+          name: Chore Completion
+          severity:
+            green: 75
+            yellow: 50
+            red: 25
+
+automation:
+  - alias: "Chore Reminder"
+    trigger:
+      - platform: time
+        at: "18:00"
+    condition:
+      - condition: template
+        value_template: "{{ states('sensor.vacuum') == 'Pending' }}"
+    action:
+      - service: notify.notify
+        data:
+          message: "Reminder: Don't forget to vacuum!"
+  - alias: "Chore Completion Tracker"
+    trigger:
+      - platform: state
+        entity_id: sensor.dishes
+        to: "Completed"
+    action:
+      - service: homeassistant.update_entity
+        entity_id: sensor.completed_chores
