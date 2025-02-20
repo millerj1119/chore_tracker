@@ -1,0 +1,15 @@
+{
+  "name": "Chore Tracker Repository",
+  "url": "https://github.com/millerj1119/chore_tracker",
+  "maintainer": "Your Name <your.email@example.com>",
+  "addons": [
+    {
+      "slug": "home_chores_tracker",
+      "name": "Home Chores Tracker",
+      "version": "1.0",
+      "description": "Track and manage personal and household chores in Home Assistant.",
+      "url": "https://github.com/millerj1119/chore_tracker/tree/main/home_chores_tracker",
+      "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"]
+    }
+  ]
+}
